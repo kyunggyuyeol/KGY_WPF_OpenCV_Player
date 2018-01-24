@@ -13,5 +13,7 @@
         </Grid.RowDefinitions>
         <Image x:Name="img_player" Grid.Row="0"/>
         <Button x:Name="btn_player" Content="play" Grid.Row="1" Click="btn_player_Click"/>
+
+        <TextBox Height="23" VerticalAlignment="Top"/>
     </Grid>
 </Window>

@@ -46,41 +46,63 @@ namespace WPF_OpenCV_Player
                 return;
             }
 
-            Mat frame = new Mat();
-
             video.Set(CaptureProperty.FrameWidth, video.FrameWidth);
             video.Set(CaptureProperty.FrameHeight, video.FrameHeight);
             double fps = video.Get(CaptureProperty.Fps);
-            
-            while (true)
+
+            int count = 0;
+
+            DateTime start = DateTime.Now;
+
+
+            while(true)
             {
+                Mat frame = new Mat();
+
                 if (video.Read(frame))
                 {
                     if (frame.Width == 0 && frame.Height == 0)
                         break;
 
-                    Cv2.ImShow("00", frame);
-                    WriteableBitmap wb = new WriteableBitmap(video.FrameWidth, video.FrameHeight, 96, 96, PixelFormats.Bgr24, null);
-                    WriteableBitmapConverter.ToWriteableBitmap(frame, wb);
+                    count++;
 
+                    TimeSpan playTime = DateTime.Now - start;
+                    TimeSpan targetTime = TimeSpan.FromSeconds(count / fps);
+                    
+                    if (targetTime < playTime)
+                    {
+                        Console.WriteLine($"{playTime}, {targetTime}");
+                        continue;
+                    }                    
+                    //Cv2.ImShow("00", frame);
+                    
                     Dispatcher.Invoke(new Action(delegate ()
                     {
-                        img_player.Source = wb;
+                        var a = WriteableBitmapConverter.ToWriteableBitmap(frame, 96, 96, PixelFormats.Bgr24, null);
+                        img_player.Source = a;
                     }));
 
-                    if (Cv2.WaitKey(10) == 27)
+                    playTime = DateTime.Now - start;
+                    if (targetTime > playTime)
                     {
-                        break;
+                        Thread.Sleep(targetTime - playTime);
                     }
+
+                    //Cv2.ImWrite($"savefile{count:D4}.jpg", frame);
+                    //count++;
+                    //if (Cv2.WaitKey(10) == 27)
+                    //{
+                    //    break;
+                    //}
                 }
             }
         }
 
         private void btn_player_Click(object sender, RoutedEventArgs e)
         {
-            //Task t1 = new Task(new Action(player));
-            //t1.Start();
-            player();
+            Task t1 = new Task(new Action(player));
+            t1.Start();
+            //player();
         }
     }
 }

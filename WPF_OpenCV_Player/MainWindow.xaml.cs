@@ -39,6 +39,7 @@ namespace WPF_OpenCV_Player
             string path = AppDomain.CurrentDomain.BaseDirectory;
             string fullpath = System.IO.Path.Combine(path, "cheerleading_0001.mp4");
             VideoCapture video = VideoCapture.FromFile(fullpath);
+            var asfe = video.Get(CaptureProperty.FrameCount);
 
             if (!video.IsOpened())
             {
@@ -50,10 +51,10 @@ namespace WPF_OpenCV_Player
             video.Set(CaptureProperty.FrameHeight, video.FrameHeight);
             double fps = video.Get(CaptureProperty.Fps);
 
+            //프레임 진행
             int count = 0;
 
             DateTime start = DateTime.Now;
-
 
             while(true)
             {
@@ -71,15 +72,14 @@ namespace WPF_OpenCV_Player
                     
                     if (targetTime < playTime)
                     {
-                        Console.WriteLine($"{playTime}, {targetTime}");
+                        //Console.WriteLine($"{playTime}, {targetTime}");
                         continue;
                     }                    
-                    //Cv2.ImShow("00", frame);
                     
                     Dispatcher.Invoke(new Action(delegate ()
                     {
                         var a = WriteableBitmapConverter.ToWriteableBitmap(frame, 96, 96, PixelFormats.Bgr24, null);
-                        img_player.Source = a;
+                        //img_player.Source = a;
                     }));
 
                     playTime = DateTime.Now - start;
@@ -87,13 +87,6 @@ namespace WPF_OpenCV_Player
                     {
                         Thread.Sleep(targetTime - playTime);
                     }
-
-                    //Cv2.ImWrite($"savefile{count:D4}.jpg", frame);
-                    //count++;
-                    //if (Cv2.WaitKey(10) == 27)
-                    //{
-                    //    break;
-                    //}
                 }
             }
         }
